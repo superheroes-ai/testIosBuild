@@ -8,7 +8,7 @@ workflows:
     environment:
       xcode: latest
       vars:
-        PROJECT_PATH: "MySnakeGame.iOS/MySnakeGame.iOS.csproj"
+        PROJECT_PATH: "testIosBuild.csproj"
         BUILD_CONFIGURATION: "Release"
 
     scripts:
