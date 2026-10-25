@@ -4,7 +4,7 @@ workflows:
     max_build_duration: 120
     instance_type: mac_mini_m2
     environment:
-      xcode: 16.4
+      xcode: 26.5
       vars:
         DOTNET_ROOT: $CM_BUILD_DIR/dotnet
         PATH: $CM_BUILD_DIR/dotnet:$CM_BUILD_DIR/dotnet/tools:$PATH
