@@ -1,0 +1,39 @@
+
+workflows:
+  monogame-ios:
+    name: MonoGame iOS - .NET 9
+    max_build_duration: 120
+    instance_type: mac_mini_m2
+
+    environment:
+      xcode: latest
+      vars:
+        PROJECT_PATH: "MySnakeGame.iOS/MySnakeGame.iOS.csproj"
+        BUILD_CONFIGURATION: "Release"
+
+    scripts:
+      - name: Install .NET 9 SDK
+        script: |
+          wget https://dot.net/v1/dotnet-install.sh
+          chmod +x dotnet-install.sh
+          ./dotnet-install.sh --channel 9.0
+
+      - name: Install iOS workloads
+        script: |
+          dotnet workload install ios maui
+
+      - name: Restore NuGet packages
+        script: |
+          dotnet restore "$PROJECT_PATH"
+
+      - name: Build for iOS Simulator
+        script: |
+          dotnet build "$PROJECT_PATH" \
+            --configuration "$BUILD_CONFIGURATION" \
+            --framework net9.0-ios \
+            -p:RuntimeIdentifier=iossimulator-arm64 \
+            -p:EnableCodeSigning=false
+
+    artifacts:
+      - "**/bin/Release/net9.0-ios/iossimulator-arm64/**/*.app"
+      - "**/bin/Release/net9.0-ios/iossimulator-arm64/**/*.dll"
