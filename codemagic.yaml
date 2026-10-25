@@ -7,25 +7,27 @@ workflows:
       xcode: 16.4
       vars:
         DOTNET_ROOT: $CM_BUILD_DIR/dotnet
-        DOTNET: $CM_BUILD_DIR/dotnet/dotnet
-        PROJECT_FILE: testIosBuild.csproj   # <-- your csproj name
+        PATH: $CM_BUILD_DIR/dotnet:$CM_BUILD_DIR/dotnet/tools:$PATH
+        DOTNET_CLI_TELEMETRY_OPTOUT: 1
+        PROJECT_FILE: testIosBuild.csproj
     scripts:
       - name: Install .NET 9 SDK
         script: |
           wget https://dot.net/v1/dotnet-install.sh
           chmod +x dotnet-install.sh
           ./dotnet-install.sh --channel 9.0 --install-dir $DOTNET_ROOT
-          $DOTNET --info
+          dotnet --info
       - name: Install iOS workload
         script: |
-          $DOTNET nuget locals all --clear
-          $DOTNET workload install ios
-      - name: Restore
+          dotnet nuget locals all --clear
+          dotnet workload install ios
+      - name: Restore tools and packages
         script: |
-          $DOTNET restore $PROJECT_FILE
+          dotnet tool restore
+          dotnet restore $PROJECT_FILE
       - name: Build for iOS Simulator
         script: |
-          $DOTNET build $PROJECT_FILE -f net9.0-ios -c Debug \
+          dotnet build $PROJECT_FILE -f net9.0-ios -c Debug \
             -p:RuntimeIdentifier=iossimulator-arm64 \
             -o artifacts
     artifacts:
