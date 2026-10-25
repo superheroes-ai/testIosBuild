@@ -1,24 +1,31 @@
 workflows:
-  monogame-ios-unsigned:
-    name: MonoGame iOS (unsigned test build)
+  monogame-ios-simulator-build:
+    name: MonoGame iOS Simulator
+    max_build_duration: 120
     instance_type: mac_mini_m2
-    max_build_duration: 60
     environment:
-      xcode: 16.4          # must match what the iOS workload for your .NET 9 version expects
+      xcode: 16.4
       vars:
-        PROJECT: testIosBuild.csproj   # <-- change to your csproj path
+        DOTNET_ROOT: $CM_BUILD_DIR/dotnet
+        DOTNET: $CM_BUILD_DIR/dotnet/dotnet
     scripts:
-      - name: Check .NET
+      - name: Install .NET 9 SDK
         script: |
-          dotnet --info
+          wget https://dot.net/v1/dotnet-install.sh
+          chmod +x dotnet-install.sh
+          ./dotnet-install.sh --channel 9.0 --install-dir $DOTNET_ROOT
+          $DOTNET --info
       - name: Install iOS workload
         script: |
-          dotnet workload install ios
+          $DOTNET nuget locals all --clear
+          $DOTNET workload install ios
       - name: Restore
         script: |
-          dotnet restore "$PROJECT"
-      - name: Build (no signing)
+          $DOTNET restore
+      - name: Build for iOS Simulator
         script: |
-          dotnet build "$PROJECT" -c Release -f net9.0-ios \
-            -p:RuntimeIdentifier=ios-arm64 \
-            -p:EnableCodeSigning=false
+          $DOTNET build -f net9.0-ios -c Debug \
+            -p:RuntimeIdentifier=iossimulator-arm64 \
+            -o artifacts
+    artifacts:
+      - ./artifacts/*.app
